@@ -11,8 +11,8 @@ public class Aces extends ScoreCategory {
     @Override
     public int calculate(DiceSet set) {
         int sum = 0;
-        for (var d : set.getDices()) {
-            if (d.getValue() == 1) sum++;
+        for (var d : set.getDices()) { // DiceSet 기준
+            if (d.getValue() == 1) sum += 1;
         }
         return sum;
     }

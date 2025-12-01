@@ -1,62 +1,68 @@
 package game;
 
-import dice.DiceSet;
-import java.util.*;
-import player.Player;
 import screen.Screen;
-import storage.FileIOManager;
+import storage.SaveSystem;
 
 public class GameManager {
 
-    private Player[] players;
-    private int currentPlayer;
-    private DiceSet diceSet;
-    private Screen screen;
-    private boolean hasRolled;
-    private FileIOManager fileManager;
-
-
-    public GameManager() {
-        this.currentPlayer = 0;
-        this.screen = new Screen();
-        this.fileManager = new FileIOManager();
-    }
+    private Screen screen = new Screen();
+    private SaveSystem saveSystem = new SaveSystem();
+    private GameState state;
 
     public void start() {
         screen.showWelcome();
-        initPlayers();
+
+        if (screen.askLoadGame()) {
+            state = saveSystem.load();
+            if (state == null) {
+                screen.show("저장된 게임 없음 → 새 게임 시작");
+                state = newGame();
+            }
+        } else {
+            state = newGame();
+        }
+
         gameLoop();
         screen.showGameOver();
     }
 
-    private void initPlayers() {
-        // TODO: 사용자 입력 받아 Player 생성
+    private GameState newGame() {
+        return new GameState(screen.askPlayers());
     }
 
     private void gameLoop() {
-        // TODO: 턴 기반 게임 루프 구현
+        while (!isFinished()) {
+            screen.showTurn(state);
+
+            int cmd = screen.askCommand();
+            handleCommand(cmd);
+        }
     }
 
-    public GameSaveData toSaveData() {
-        GameSaveData data = new GameSaveData();
-        data.currentPlayer = this.currentPlayer;
-        data.hasRolled = this.hasRolled;
-
-        // Dice 값 저장
-        data.diceValues = new int[5];
-        for (int i = 0; i < 5; i++) {
-            data.diceValues[i] = diceSet.getDices()[i].getValue();
-        }
-
-        // 플레이어 정보 저장
-        data.players = new ArrayList<>();
-        for (Player p : players) {
-            GameSaveData.PlayerData pd = new GameSaveData.PlayerData();
-            pd.name = p.getName();
-            pd.scoreBoard = p.getScoreBoard().getAllScores();
-            data.players.add(pd);
-        }
-        return data;
+    private boolean isFinished() {
+        return false; // TODO
     }
 
+    private void handleCommand(int cmd) {
+        switch (cmd) {
+            case 1 -> handleRoll();
+            case 2 -> handleHold();
+            case 3 -> handleScore();
+            case 9 -> saveSystem.save(state);
+            default -> screen.show("잘못된 명령입니다.");
+        }
+    }
+
+    private void handleRoll() {
+        state.getDiceSet().reRoll();
+        state.setHasRolled(true);
+    }
+
+    private void handleHold() {
+        // TODO: Screen이 hold할 index를 물어보도록 구성
+    }
+
+    private void handleScore() {
+        // TODO: ScoreBoard / ScoreCategory 연동
+    }
 }

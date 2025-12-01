@@ -2,70 +2,46 @@ package game;
 
 import dice.DiceSet;
 import player.Player;
-import storage.GameSaveData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameState {
 
-    private Player[] players;
-    private int currentPlayer;
-    private DiceSet diceSet;
-    private boolean hasRolled;
+    private final Player[] players;
+    private final DiceSet diceSet;
+    private int currentPlayerIndex;
+    private int rerollsLeft;
 
-    // 새 게임
     public GameState(Player[] players) {
         this.players = players;
-        this.currentPlayer = 0;
-        this.diceSet = new DiceSet();
-        this.hasRolled = false;
+        this.diceSet = new DiceSet(5);
+        this.currentPlayerIndex = 0;
+        this.rerollsLeft = 3;
     }
 
-    // 로드된 게임에서 복원
-    public GameState(GameSaveData data) {
-        this.currentPlayer = data.currentPlayer;
-        this.hasRolled = data.hasRolled;
-
-        // Player 재구성
-        this.players = new Player[data.players.size()];
-        for (int i = 0; i < data.players.size(); i++) {
-            var pd = data.players.get(i);
-            this.players[i] = new Player(pd.name, new score.ScoreBoard(pd.scoreBoard));
-        }
-
-        // DiceSet 재구성
-        this.diceSet = new DiceSet();
-        for (int i = 0; i < 5; i++) {
-            diceSet.getDices()[i].release();
-            diceSet.getDices()[i].roll();
-        }
+    public Player[] getPlayers() {
+        return players;
     }
 
-    // PlayerData 변환용
-    public List<GameSaveData.PlayerData> toPlayerDataList() {
-        List<GameSaveData.PlayerData> list = new ArrayList<>();
-
-        for (Player p : players) {
-            GameSaveData.PlayerData pd = new GameSaveData.PlayerData();
-            pd.name = p.getName();
-            pd.scoreBoard = p.getScoreBoard().getAllScores();
-            list.add(pd);
-        }
-
-        return list;
+    public DiceSet getDiceSet() {
+        return diceSet;
     }
 
-    // Getters
-    public Player[] getPlayers() { return players; }
-    public int getCurrentPlayer() { return currentPlayer; }
-    public DiceSet getDiceSet() { return diceSet; }
-    public boolean hasRolled() { return hasRolled; }
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
 
-    public void setHasRolled(boolean rolled) { hasRolled = rolled; }
+    public void advanceToNextPlayer() {
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    }
 
-    public void nextPlayer() {
-        currentPlayer = (currentPlayer + 1) % players.length;
-        hasRolled = false;
+    public int getRerollsLeft() {
+        return rerollsLeft;
+    }
+
+    public void setRerollsLeft(int rerollsLeft) {
+        this.rerollsLeft = rerollsLeft;
+    }
+
+    public void decrementRerolls() {
+        if (rerollsLeft > 0) rerollsLeft--;
     }
 }

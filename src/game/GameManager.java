@@ -45,7 +45,7 @@ public class GameManager {
         // Dice 값 저장
         data.diceValues = new int[5];
         for (int i = 0; i < 5; i++) {
-            data.diceValues[i] = diceSet.getDice()[i].getValue();
+            data.diceValues[i] = diceSet.getDices()[i].getValue();
         }
 
         // 플레이어 정보 저장

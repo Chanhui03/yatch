@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class ScoreBoard {
     // Map to hold scores for each category
+    // Using EnumMap for efficiency with enum keys
     private final Map<ScoreCategory, Integer> scores = new EnumMap<>(ScoreCategory.class);
 
     public boolean isUsed(ScoreCategory category) {

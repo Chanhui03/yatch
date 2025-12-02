@@ -1,0 +1,43 @@
+{
+  "players": [
+    {
+      "name": "Player 1",
+      "scoreBoard": {
+        "scores": {
+          "SIXES": 30,
+          "TWOS": 10,
+          "ACES": 5,
+          "FOURS": 20,
+          "THREES": 15,
+          "FIVES": 25
+        }
+      }
+    }
+  ],
+  "diceSet": {
+    "diceList": [
+      {
+        "value": 0,
+        "isHeld": false
+      },
+      {
+        "value": 0,
+        "isHeld": false
+      },
+      {
+        "value": 0,
+        "isHeld": false
+      },
+      {
+        "value": 0,
+        "isHeld": false
+      },
+      {
+        "value": 0,
+        "isHeld": false
+      }
+    ]
+  },
+  "currentPlayerIndex": 0,
+  "rerollsLeft": 3
+}

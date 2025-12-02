@@ -38,7 +38,7 @@ public class GameFrame extends JFrame {
         setSize(880, 640);
         setLocationRelativeTo(null);
 
-        initGame();
+        initGame();     // 여기서 "인원 수 + 불러오기" 다이얼로그 처리
         initUI();
         syncFromState();   // 초기 화면 동기화
 
@@ -46,29 +46,132 @@ public class GameFrame extends JFrame {
     }
 
     // -----------------------------
-    // 게임 초기화
+    // 시작 설정용 DTO
     // -----------------------------
-    private void initGame() {
-        // 최초 1번만 물어보고, 이후에는 같은 인원으로 재시작
-        if (playerCount == 0) {
-            playerCount = askPlayerCount();
+    private static class StartConfig {
+        final boolean loadExisting;
+        final int playerCount;
+
+        StartConfig(boolean loadExisting, int playerCount) {
+            this.loadExisting = loadExisting;
+            this.playerCount = playerCount;
         }
-        manager.startNewGame(playerCount);
-        // ❗ 여기서는 절대 rollDice() 호출 안 함 → 처음엔 항상 ? 상태
-        // 각 턴 시작 시 GameManager 내부에서
-        // dice 값은 0, rerollsLeft = 3 으로 맞춰져 있어야 함.
     }
 
-    private int askPlayerCount() {
-        while (true) {
-            String input = JOptionPane.showInputDialog(this, "플레이어 수를 입력하세요 (1~4)", "2");
-            if (input == null) System.exit(0);
-            try {
-                int n = Integer.parseInt(input.trim());
-                if (n >= 1 && n <= 4) return n;
-            } catch (NumberFormatException ignored) {}
-            JOptionPane.showMessageDialog(this, "1~4 사이의 숫자를 입력하세요.");
+    // -----------------------------
+    // 게임 초기화 (일반용)
+    // -----------------------------
+    private void initGame() {
+        // 아직 한 번도 시작한 적 없는 경우에만 다이얼로그 사용
+        if (manager.getState() == null && playerCount == 0) {
+            initGameFromDialog();
+        } else {
+            // 이미 playerCount가 정해져 있는 경우(같은 인원으로 새 게임) → 그대로 새 게임
+            manager.startNewGame(playerCount);
         }
+    }
+
+    // -----------------------------
+    // "인원 수 / 불러오기" 다이얼로그를 사용해 새 게임 시작
+    // (처음 시작 + '인원 다시 입력' 둘 다 여기 사용)
+    // -----------------------------
+    private void initGameFromDialog() {
+        while (true) {
+            StartConfig cfg = askStartConfig();  // 인원 수 + 불러오기 버튼 포함 다이얼로그
+
+            if (cfg.loadExisting) {
+                // 세이브 불러오기 시도 (시작 전 → 인원 수 체크 X)
+                if (manager.loadGame()) {
+                    playerCount = manager.getPlayerCount();
+                    return; // 불러오기에 성공하면 바로 종료
+                } else {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "세이브 파일을 불러오지 못했습니다.\n새 게임을 시작하거나 다시 시도해주세요.",
+                            "불러오기 오류",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    // while 루프를 돌면서 다시 다이얼로그 띄움
+                }
+            } else {
+                // 새 게임
+                playerCount = cfg.playerCount;
+                manager.startNewGame(playerCount);
+                return;
+            }
+        }
+    }
+
+    // -----------------------------
+    // 인원 수 + 불러오기 선택 다이얼로그
+    // -----------------------------
+    private StartConfig askStartConfig() {
+        final JDialog dialog = new JDialog(this, "플레이어 수 / 불러오기", true);
+
+        JLabel label = new JLabel("플레이어 수 (1~4): ");
+        JTextField playerField = new JTextField("2", 5);
+
+        JButton startButton = new JButton("시작");
+        JButton loadButton = new JButton("불러오기");
+        JButton exitButton = new JButton("종료");
+
+        final StartConfig[] result = new StartConfig[1];
+
+        // 세이브 파일 없으면 불러오기 버튼 비활성화
+        boolean canLoad = manager.hasSave();
+        loadButton.setEnabled(canLoad);
+        if (!canLoad) {
+            loadButton.setToolTipText("저장된 게임이 없습니다.");
+        }
+
+        startButton.addActionListener(e -> {
+            try {
+                int n = Integer.parseInt(playerField.getText().trim());
+                if (n >= 1 && n <= 4) {
+                    result[0] = new StartConfig(false, n);
+                    dialog.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "플레이어 수는 1~4 사이여야 합니다.");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "숫자를 입력하세요.");
+            }
+        });
+
+        // 시작 전 불러오기: 여기서는 "불러오기 하겠다"라는 의지만 넘기고
+        // 실제 loadGame 호출은 initGameFromDialog()가 담당
+        loadButton.addActionListener(e -> {
+            result[0] = new StartConfig(true, 0);
+            dialog.dispose();
+        });
+
+        exitButton.addActionListener(e -> System.exit(0));
+
+        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        inputPanel.add(label);
+        inputPanel.add(playerField);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(loadButton);
+        buttonPanel.add(startButton);
+        buttonPanel.add(exitButton);
+
+        JPanel content = new JPanel(new BorderLayout(10, 10));
+        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        content.add(inputPanel, BorderLayout.CENTER);
+        content.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setContentPane(content);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.setVisible(true);
+
+        if (result[0] == null) {
+            // 창을 강제로 닫는 상황은 없으니 안전하게 종료
+            System.exit(0);
+        }
+        return result[0];
     }
 
     // -----------------------------
@@ -77,11 +180,65 @@ public class GameFrame extends JFrame {
     private void initUI() {
         setLayout(new BorderLayout());
 
-        // 상단: 현재 플레이어
+        // 상단: 현재 플레이어 + 저장/불러오기
         JPanel topPanel = new JPanel(new BorderLayout());
         currentPlayerLabel.setFont(currentPlayerLabel.getFont().deriveFont(Font.BOLD, 18f));
         currentPlayerLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.add(currentPlayerLabel, BorderLayout.WEST);
+
+        // 오른쪽 상단: 저장 / 불러오기 버튼
+        JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton saveButton = new JButton("게임 저장하기");
+        JButton loadButton = new JButton("불러오기");
+
+        saveButton.addActionListener(e -> {
+            manager.saveGame();
+            JOptionPane.showMessageDialog(
+                    GameFrame.this,
+                    "게임이 저장되었습니다.",
+                    "저장",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+        loadButton.addActionListener(e -> {
+            if (!manager.hasSave()) {
+                JOptionPane.showMessageDialog(
+                        GameFrame.this,
+                        "저장된 게임이 없습니다.",
+                        "불러오기",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // 진행 중인 게임에서는 현재 인원 수와 같은 세이브만 허용
+            boolean ok = manager.loadGameWithSamePlayerCountOnly();
+            if (!ok) {
+                JOptionPane.showMessageDialog(
+                        GameFrame.this,
+                        "현재 게임의 플레이어 수와 다른 세이브 파일입니다.\n"
+                      + "같은 인원으로 저장된 게임만 불러올 수 있습니다.",
+                        "플레이어 수 불일치",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            playerCount = manager.getPlayerCount();
+            syncFromState();
+            JOptionPane.showMessageDialog(
+                    GameFrame.this,
+                    "게임을 불러왔습니다.",
+                    "불러오기",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+        topRightPanel.add(saveButton);
+        topRightPanel.add(loadButton);
+        topPanel.add(topRightPanel, BorderLayout.EAST);
+
         add(topPanel, BorderLayout.NORTH);
 
         // 중앙: 주사위 + 버튼들
@@ -110,17 +267,47 @@ public class GameFrame extends JFrame {
             syncFromState();
         });
 
-        // 새 게임 버튼
+        // 새 게임 버튼 → 같은 인원 / 인원 다시 입력 / 취소 중 선택
         restartButton.addActionListener(e -> {
-            int result = JOptionPane.showConfirmDialog(
+            Object[] options = {"같은 인원으로", "인원 다시 입력", "취소"};
+            int choice = JOptionPane.showOptionDialog(
                     GameFrame.this,
-                    "현재 게임을 종료하고 새 게임을 시작할까요?",
+                    "새 게임을 어떻게 시작할까요?",
                     "새 게임",
-                    JOptionPane.YES_NO_OPTION
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
             );
-            if (result == JOptionPane.YES_OPTION) {
-                initGame();
-                syncFromState();
+
+            if (choice == 0) { // 같은 인원으로
+                int result = JOptionPane.showConfirmDialog(
+                        GameFrame.this,
+                        "현재 게임을 종료하고 같은 인원으로 새 게임을 시작할까요?",
+                        "새 게임",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (result == JOptionPane.YES_OPTION) {
+                    initGame();      // playerCount 그대로 사용
+                    syncFromState();
+                }
+            } else if (choice == 1) { // 인원 다시 입력
+                int result = JOptionPane.showConfirmDialog(
+                        GameFrame.this,
+                        "현재 게임을 종료하고 인원 수를 다시 설정할까요?",
+                        "새 게임",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (result == JOptionPane.YES_OPTION) {
+                    // 이전 상태/인원 수는 버리고, 다이얼로그부터 다시
+                    manager.startNewGame(Math.max(playerCount, 1)); // 의미 없는 초기화 (원하면 생략 가능)
+                    playerCount = 0;
+                    initGameFromDialog();
+                    syncFromState();
+                }
+            } else {
+                // 취소 또는 닫기 → 아무 것도 안 함
             }
         });
 
@@ -150,10 +337,37 @@ public class GameFrame extends JFrame {
         scoreTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                // 게임 끝났으면 클릭 무시
+                if (manager.isGameFinished()) return;
+
                 int row = scoreTable.rowAtPoint(e.getPoint());
                 int col = scoreTable.columnAtPoint(e.getPoint());
                 if (row < 0 || col < 0) return;
 
+                // 카테고리 행이 아니거나, 0열(라벨 열)이면 비활성
+                if (!scoreTableModel.isCategoryRow(row) || col == 0) {
+                    return;
+                }
+
+                // 현재 플레이어 열이 아니면 비활성
+                int playerIndex = col - 1;
+                int currentIdx = manager.getState().getCurrentPlayerIndex();
+                if (playerIndex != currentIdx) {
+                    return;
+                }
+
+                // 아직 한 번도 굴리지 않았다면(모두 0) 비활성
+                if (!hasRolledThisTurn()) {
+                    return;
+                }
+
+                // 이미 사용한 카테고리라면 비활성
+                ScoreCategory category = scoreTableModel.getCategoryAtRow(row);
+                if (!manager.canUseCategory(category)) {
+                    return;
+                }
+
+                // 여기까지 온 셀만 "활성 셀" → 선택 및 두 번째 클릭 처리
                 if (row == selectedRow && col == selectedCol) {
                     // 두 번째 클릭 → 점수 기록 시도
                     handleCellSecondClick(row, col);
@@ -172,9 +386,29 @@ public class GameFrame extends JFrame {
     }
 
     // -----------------------------
+    // 이번 턴에서 한 번이라도 주사위를 굴렸는지 여부
+    // (모두 0이면 아직 안 굴린 상태)
+    // -----------------------------
+    private boolean hasRolledThisTurn() {
+        DiceSet diceSet = manager.getState().getDiceSet();
+        List<Integer> values = diceSet.getValues();
+        for (int v : values) {
+            if (v != 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // -----------------------------
     // 셀 두 번째 클릭 → 점수 기록
     // -----------------------------
     private void handleCellSecondClick(int row, int col) {
+        // 턴 시작 직후(아직 한 번도 굴리지 않았거나 게임 끝난 경우)에는 점수 기록 불가
+        if (!hasRolledThisTurn() || manager.isGameFinished()) {
+            return;
+        }
+
         // 0열(카테고리 이름) 제외 + 카테고리 행만 가능
         if (!scoreTableModel.isCategoryRow(row) || col == 0) return;
 
@@ -199,7 +433,7 @@ public class GameFrame extends JFrame {
 
         // 현재 플레이어 표시
         int idx = state.getCurrentPlayerIndex();
-        currentPlayerLabel.setText("현재 플레이어: Player " + (idx + 1));
+        currentPlayerLabel.setText("현재 플레이어 : Player " + (idx + 1));
 
         updateRollButtonLabel();
         syncDiceFromState();
@@ -372,7 +606,9 @@ public class GameFrame extends JFrame {
                     setText(String.valueOf(recorded));
                 } else {
                     int currentIdx = manager.getState().getCurrentPlayerIndex();
-                    if (playerIndex == currentIdx && !manager.isGameFinished()) {
+                    if (playerIndex == currentIdx
+                            && !manager.isGameFinished()
+                            && GameFrame.this.hasRolledThisTurn()) {   // 굴린 후에만 미리보기
                         int preview = manager.previewScore(category);
                         setText(String.valueOf(preview));
                         setForeground(Color.GRAY);

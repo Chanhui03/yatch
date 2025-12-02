@@ -3,10 +3,13 @@ package game;
 import dice.DiceSet;
 import java.util.List;
 import player.Player;
+import save.SaveSystem;
 
 public class GameManager {
 
     private GameState state;
+
+    private final SaveSystem saveSystem = new SaveSystem();
 
     // 새 게임 시작
     public void startNewGame(int playerCount) {
@@ -95,5 +98,54 @@ public class GameManager {
             }
         }
         return true;
+    }
+
+    /** 현재 게임 상태 저장 */
+    public void saveGame() {
+        if (state != null) {
+            saveSystem.save(state);
+        }
+    }
+
+
+    /**
+     * 플레이어 수 체크 없이 그냥 세이브를 불러온다.
+     * - 앱 처음 켰을 때 "불러오기"로 시작하는 용도
+     */
+    public boolean loadGame() {
+        GameState loaded = saveSystem.load();
+        if (loaded != null) {
+            this.state = loaded;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 현재 게임의 플레이어 수와 같은 세이브만 불러온다.
+     * - 이미 3인 게임을 진행 중일 때, 2인용 세이브를 실수로 불러오는 것을 막고 싶을 때 사용
+     * - 현재 state가 없는 경우(= 새 게임 전)에는 그냥 loadGame()과 동일하게 동작하도록 할 수도 있음
+     */
+    public boolean loadGameWithSamePlayerCountOnly() {
+        GameState loaded = saveSystem.load();
+        if (loaded == null) return false;
+
+        // 현재 게임이 이미 존재한다면 플레이어 수 비교
+        if (this.state != null) {
+            int currentCount = this.state.getPlayers().length;
+            int loadedCount  = loaded.getPlayers().length;
+            if (currentCount != loadedCount) {
+                // 인원 수 다르면 불러오기 거절
+                return false;
+            }
+        }
+
+        this.state = loaded;
+        return true;
+    }
+    
+    /** 세이브 파일 존재 여부 */
+    public boolean hasSave() {
+        return saveSystem.hasSave();
     }
 }

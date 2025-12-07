@@ -5,6 +5,7 @@
       "scoreBoard": {
         "scores": {
 <<<<<<< HEAD
+<<<<<<< HEAD
           "FIVES": 15,
           "YACHT": 0
         }
@@ -19,6 +20,14 @@
           "game.Twos@65054245": 4,
           "game.Fives@5198d10c": 5
 >>>>>>> 4bae91e (.)
+=======
+          "SIXES": 30,
+          "TWOS": 10,
+          "ACES": 5,
+          "FOURS": 20,
+          "THREES": 15,
+          "FIVES": 25
+>>>>>>> 3df228d (.)
         }
       }
     }

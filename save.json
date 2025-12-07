@@ -4,6 +4,7 @@
       "name": "Player 1",
       "scoreBoard": {
         "scores": {
+<<<<<<< HEAD
           "FIVES": 15,
           "YACHT": 0
         }
@@ -14,6 +15,10 @@
       "scoreBoard": {
         "scores": {
           "FULL_HOUSE": 25
+=======
+          "game.Twos@65054245": 4,
+          "game.Fives@5198d10c": 5
+>>>>>>> 4bae91e (.)
         }
       }
     }

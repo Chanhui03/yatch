@@ -36,8 +36,8 @@ public class ScoreCalculator {
         return sum;
     }
 
-    private static Map<Integer, Integer> countFaces(List<Integer> dice) {
-        Map<Integer, Integer> counts = new HashMap<>();
+    private static HashMap<Integer, Integer> countFaces(List<Integer> dice) {
+        HashMap<Integer, Integer> counts = new HashMap<>();
         for (int d : dice) {
             counts.put(d, counts.getOrDefault(d, 0) + 1);
         }
@@ -45,7 +45,7 @@ public class ScoreCalculator {
     }
 
     private static int fourOfAKind(List<Integer> dice) {
-        Map<Integer, Integer> counts = countFaces(dice);
+        HashMap<Integer, Integer> counts = countFaces(dice);
         for (int count : counts.values()) {
             if (count >= 4) {
                 return sumAll(dice);
@@ -55,7 +55,7 @@ public class ScoreCalculator {
     }
 
     private static int fullHouse(List<Integer> dice) {
-        Map<Integer, Integer> counts = countFaces(dice);
+        HashMap<Integer, Integer> counts = countFaces(dice);
         boolean hasThree = false;
         boolean hasTwo = false;
         for (int c : counts.values()) {
@@ -66,7 +66,7 @@ public class ScoreCalculator {
     }
 
     private static int smallStraight(List<Integer> dice) {
-        Set<Integer> set = new HashSet<>(dice);
+        List<Integer> set = dice;
         if (set.containsAll(Arrays.asList(1, 2, 3, 4)) ||
             set.containsAll(Arrays.asList(2, 3, 4, 5)) ||
             set.containsAll(Arrays.asList(3, 4, 5, 6))) {
@@ -76,7 +76,7 @@ public class ScoreCalculator {
     }
 
     private static int largeStraight(List<Integer> dice) {
-        Set<Integer> set = new HashSet<>(dice);
+        List<Integer> set = dice;
         if (set.containsAll(Arrays.asList(1, 2, 3, 4, 5)) ||
             set.containsAll(Arrays.asList(2, 3, 4, 5, 6))) {
             return 30;

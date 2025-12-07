@@ -31,7 +31,8 @@ public class GameFrame extends JFrame {
 
     // 새 게임 시 재사용할 플레이어 수
     private int playerCount = 0;
-
+    
+    //GameFrame 생성자
     public GameFrame() {
         setTitle("Yacht Dice Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

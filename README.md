@@ -172,3 +172,35 @@ out/
 ```
 
 ---
+
+
+#각 파트 분배
+src/
+ ├── dice/          ← 찬희 담당
+ │     ├── Dice.java
+ │     └── DiceSet.java
+ │
+ ├── storage/       ← 찬희 담당
+ │     ├── FileIOManager.java
+ │     ├── SaveSystem.java
+ │     └── GameSaveData.java
+ │
+ ├── score/         ← 준헌 담당
+ │     ├── ScoreCategory.java (abstract)
+ │     ├── Aces.java (하위 클래스들)
+ │     ├── Twos.java (아래로 더 추가해야함)
+ │     ├── FullHouse.java
+ │     ├── ScoreBoard.java
+ │
+ ├── player/        ← 준헌 담당
+ │     └── Player.java
+ │
+ ├── game/          ← 민혁 담당
+ │     ├── GameManager.java
+ │     └── GameState.java
+ │     └── ScoreCalculator.java
+ │     └── ScoreCategory.java
+ │
+ └── ui/        ← 민혁 담당
+       └── GameFrame.java
+       └── ScoreTableModel.java

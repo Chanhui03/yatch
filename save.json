@@ -4,8 +4,12 @@
       "name": "Player 1",
       "scoreBoard": {
         "scores": {
-          "game.Twos@65054245": 4,
-          "game.Fives@5198d10c": 5
+          "SIXES": 30,
+          "TWOS": 10,
+          "ACES": 5,
+          "FOURS": 20,
+          "THREES": 15,
+          "FIVES": 25
         }
       }
     }

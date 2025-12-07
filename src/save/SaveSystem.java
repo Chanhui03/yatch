@@ -20,8 +20,8 @@ public class SaveSystem {
 
     //세이브 파일 존재 여부 확인
     public boolean hasSave() {
-        File f = new File(PATH);
-        return f.exists() && f.isFile();
+        File file = new File(PATH);
+        return file.exists() && file.isFile();
     }
 
     // 현재 GameState를 json파일로 저장
@@ -29,7 +29,7 @@ public class SaveSystem {
         if (state == null) return;
         try (FileWriter writer = new FileWriter(PATH)) {
             gson.toJson(state, writer);
-            System.out.println("Game saved to " + PATH);
+            System.out.println("저장 경로: " + PATH);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,14 +37,14 @@ public class SaveSystem {
 
     // save.json파일에서 저장 정보를 로드 (없으면 null 반환) 
     public GameState load() {
-        File f = new File(PATH);
-        if (!f.exists()) {
-            System.out.println("No save file found");
+        File file = new File(PATH);
+        if (!file.exists()) {
+            System.out.println("파일을 찾을 수 없습니다.");
             return null;
         }
-        try (FileReader reader = new FileReader(f)) {
+        try (FileReader reader = new FileReader(file)) {
             GameState state = gson.fromJson(reader, GameState.class);
-            System.out.println("Game loaded from " + PATH);
+            System.out.println("로딩 경로: " + PATH);
             return state;
         } catch (IOException e) {
             e.printStackTrace();

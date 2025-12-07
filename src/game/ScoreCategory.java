@@ -113,7 +113,7 @@ class SmallStraight extends ScoreCategory {
     public SmallStraight() { super("Small Straight"); }
     @Override
     public int calculate(List<Integer> dice) {
-        Set<Integer> set = new HashSet<>(dice);
+        List<Integer> set = dice;
         return (
             set.containsAll(Arrays.asList(1,2,3,4)) ||
             set.containsAll(Arrays.asList(2,3,4,5)) ||
@@ -127,7 +127,7 @@ class LargeStraight extends ScoreCategory {
     public LargeStraight() { super("Large Straight"); }
     @Override
     public int calculate(List<Integer> dice) {
-        Set<Integer> set = new HashSet<>(dice);
+        List<Integer> set = dice;
         return (
             set.containsAll(Arrays.asList(1,2,3,4,5)) ||
             set.containsAll(Arrays.asList(2,3,4,5,6))

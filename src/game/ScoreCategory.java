@@ -36,8 +36,8 @@ public abstract class ScoreCategory {
     
     //주사위에 나온 숫자들의 빈도수를 Map으로 반환
     //예: [1,2,2,1,5] -> {1:2, 2:2, 5:1}
-    protected Map<Integer, Integer> countFaces(List<Integer> dice) {
-        Map<Integer, Integer> counts = new HashMap<>();
+    protected HashMap<Integer, Integer> countFaces(List<Integer> dice) {
+        HashMap<Integer, Integer> counts = new HashMap<>();
         for (int d : dice) counts.put(d, counts.getOrDefault(d, 0) + 1);
         return counts;
     }
@@ -87,7 +87,7 @@ class FourOfAKind extends ScoreCategory {
     public FourOfAKind() { super("Four of a Kind"); }
     @Override
     public int calculate(List<Integer> dice) {
-        Map<Integer, Integer> counts = countFaces(dice);
+        HashMap<Integer, Integer> counts = countFaces(dice);
         for (int c : counts.values()) if (c >= 4) return sumAll(dice);
         return 0;
     }
@@ -98,7 +98,7 @@ class FullHouse extends ScoreCategory {
     public FullHouse() { super("Full House"); }
     @Override
     public int calculate(List<Integer> dice) {
-        Map<Integer, Integer> counts = countFaces(dice);
+        HashMap<Integer, Integer> counts = countFaces(dice);
         boolean three = false, two = false;
         for (int c : counts.values()) {
             if (c == 3) three = true;

@@ -4,26 +4,14 @@
       "name": "Player 1",
       "scoreBoard": {
         "scores": {
-<<<<<<< HEAD
-          "Fours (4)": 8,
-          "Aces (1)": 3
-=======
-          "game.FullHouse@4f6d3ebb": 25
->>>>>>> 3d8c616 (.)
+          "Full House": 25
         }
       }
     },
     {
       "name": "Player 2",
       "scoreBoard": {
-        "scores": {
-<<<<<<< HEAD
-          "Aces (1)": 2,
-          "Choice": 20
-=======
-          "game.Choice@66ee5277": 22
->>>>>>> 3d8c616 (.)
-        }
+        "scores": {}
       }
     }
   ],
@@ -51,6 +39,6 @@
       }
     ]
   },
-  "currentPlayerIndex": 0,
+  "currentPlayerIndex": 1,
   "rerollsLeft": 3
 }

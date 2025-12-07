@@ -3,6 +3,7 @@ package save;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import game.GameState;
+import game.ScoreCategory;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,9 +17,15 @@ import java.io.IOException;
 public class SaveSystem {
 
     private static final String PATH = "save.json";
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    //세이브 파일 존재 여부 확인
+    // ScoreCategory 커스텀 어댑터를 등록한 Gson
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(ScoreCategory.class, new ScoreCategoryAdapter())
+            .enableComplexMapKeySerialization()  // Map<ScoreCategory, Integer> 지원
+            .setPrettyPrinting()
+            .create();
+
+    // 세이브 파일 존재 여부 확인
     public boolean hasSave() {
         File file = new File(PATH);
         return file.exists() && file.isFile();
@@ -35,7 +42,7 @@ public class SaveSystem {
         }
     }
 
-    // save.json파일에서 저장 정보를 로드 (없으면 null 반환) 
+    // save.json파일에서 저장 정보를 로드 (없으면 null 반환)
     public GameState load() {
         File file = new File(PATH);
         if (!file.exists()) {

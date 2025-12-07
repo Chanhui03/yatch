@@ -76,30 +76,28 @@ public class GameFrame extends JFrame {
     // (처음 시작 + '인원 다시 입력' 둘 다 여기 사용)
     // -----------------------------
     private void initGameFromDialog() {
-        while (true) {
-            StartConfig cfg = askStartConfig();  // 인원 수 + 불러오기 버튼 포함 다이얼로그
-
-            if (cfg.loadExisting) {
-                // 세이브 불러오기 시도 (시작 전 → 인원 수 체크 X)
+        StartConfig cfg = askStartConfig();
+        
+        if (cfg.loadExisting) {
+            // GameFrame이 모두 생성된 이후에 로드해야 deadlock 발생 안 함
+            SwingUtilities.invokeLater(() -> {
                 if (manager.loadGame()) {
-                    playerCount = manager.getPlayerCount();
-                    return; // 불러오기에 성공하면 바로 종료
-                } else {
-                    JOptionPane.showMessageDialog(
-                            this,
-                            "세이브 파일을 불러오지 못했습니다.\n새 게임을 시작하거나 다시 시도해주세요.",
-                            "불러오기 오류",
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                    // while 루프를 돌면서 다시 다이얼로그 띄움
-                }
-            } else {
-                // 새 게임
-                playerCount = cfg.playerCount;
-                manager.startNewGame(playerCount);
-                return;
-            }
-        }
+                   playerCount = manager.getPlayerCount();
+                   rebuildScoreTable();
+                   syncFromState();
+                JOptionPane.showMessageDialog(this, "저장된 게임을 불러왔습니다.");
+               } else {
+                  JOptionPane.showMessageDialog(this, "불러오기 실패");
+               }
+          });
+          // 임시 초기 상태로 화면을 먼저 띄움
+          manager.startNewGame(1);
+          return;
+      }
+
+        // 새 게임
+        playerCount = cfg.playerCount;
+        manager.startNewGame(playerCount);
     }
 
     // -----------------------------
@@ -509,6 +507,18 @@ public class GameFrame extends JFrame {
         sb.append("\n우승: ").append(winner).append(" (" + best + "점)");
         JOptionPane.showMessageDialog(this, sb.toString());
     }
+
+    /**
+     * 게임 화면 재생성 메소드
+     */
+    private void rebuildScoreTable() {
+        scoreTableModel = new ScoreTableModel(manager);
+        scoreTable.setModel(scoreTableModel);
+        scoreTable.setDefaultRenderer(Object.class,
+                new ScoreCellRenderer(manager, scoreTableModel));
+        scoreTable.repaint();
+    }
+
 
     // -----------------------------
     // 셀 렌더러 (요트 스타일 + 선택 셀만 테두리)

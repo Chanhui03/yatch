@@ -18,13 +18,13 @@ public class SaveSystem {
     private static final String PATH = "save.json";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    /** 세이브 파일 존재 여부 */
+    //세이브 파일 존재 여부 확인
     public boolean hasSave() {
         File f = new File(PATH);
         return f.exists() && f.isFile();
     }
 
-    /** 현재 GameState를 JSON 파일로 저장 */
+    // 현재 GameState를 json파일로 저장
     public void save(GameState state) {
         if (state == null) return;
         try (FileWriter writer = new FileWriter(PATH)) {
@@ -35,7 +35,7 @@ public class SaveSystem {
         }
     }
 
-    /** JSON 파일에서 GameState를 로드 (없으면 null 반환) */
+    // save.json파일에서 저장 정보를 로드 (없으면 null 반환) 
     public GameState load() {
         File f = new File(PATH);
         if (!f.exists()) {

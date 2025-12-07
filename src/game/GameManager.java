@@ -73,7 +73,7 @@ public class GameManager {
 
     public int previewScore(ScoreCategory category) {
         List<Integer> values = state.getDiceSet().getValues();
-        return ScoreCalculator.calculate(category, values);
+        return category.calculate(values);
     }
 
     /**

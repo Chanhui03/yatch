@@ -4,12 +4,7 @@
       "name": "Player 1",
       "scoreBoard": {
         "scores": {
-
-
-          "Fours (4)": 8,
-          "Aces (1)": 3,
-          "FIVES": 15,
-          "YACHT": 0
+          "Choice": 14
         }
       }
     },
@@ -17,7 +12,7 @@
       "name": "Player 2",
       "scoreBoard": {
         "scores": {
-          "FULL_HOUSE": 25
+          "Small Straight": 15
         }
       }
     }
@@ -25,27 +20,27 @@
   "diceSet": {
     "diceList": [
       {
-        "value": 1,
-        "isHeld": true
+        "value": 0,
+        "isHeld": false
       },
       {
-        "value": 3,
-        "isHeld": true
+        "value": 0,
+        "isHeld": false
       },
       {
-        "value": 3,
-        "isHeld": true
+        "value": 0,
+        "isHeld": false
       },
       {
-        "value": 3,
-        "isHeld": true
+        "value": 0,
+        "isHeld": false
       },
       {
-        "value": 5,
-        "isHeld": true
+        "value": 0,
+        "isHeld": false
       }
     ]
   },
-  "currentPlayerIndex": 1,
-  "rerollsLeft": 0
+  "currentPlayerIndex": 0,
+  "rerollsLeft": 3
 }

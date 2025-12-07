@@ -19,8 +19,8 @@ public class DiceSet {
     }
 
     public void rollAll() {
-        for (Dice d : diceList) {
-            d.roll();
+        for (Dice dice : diceList) {
+            dice.roll();
         }
     }
 
@@ -33,18 +33,18 @@ public class DiceSet {
 
     public void toggleHold(int index) {
         if (index < 0 || index >= diceList.size()) return;
-        Dice d = diceList.get(index);
-        if (d.isHeld()) {
-            d.release();
+        Dice dice = diceList.get(index);
+        if (dice.isHeld()) {
+            dice.release();
         } else {
-            d.hold();
+            dice.hold();
         }
     }
 
     public List<Integer> getValues() {
         List<Integer> values = new ArrayList<>();
-        for (Dice d : diceList) {
-            values.add(d.getValue());
+        for (Dice dice : diceList) {
+            values.add(dice.getValue());
         }
         return values;
     }

@@ -4,6 +4,7 @@
       "name": "Player 1",
       "scoreBoard": {
         "scores": {
+<<<<<<< HEAD
           "Choice": 14
         }
       }
@@ -13,7 +14,16 @@
       "scoreBoard": {
         "scores": {
           "Small Straight": 15
+=======
+          "Full House": 25
+>>>>>>> dev
         }
+      }
+    },
+    {
+      "name": "Player 2",
+      "scoreBoard": {
+        "scores": {}
       }
     }
   ],
@@ -41,6 +51,6 @@
       }
     ]
   },
-  "currentPlayerIndex": 0,
+  "currentPlayerIndex": 1,
   "rerollsLeft": 3
 }

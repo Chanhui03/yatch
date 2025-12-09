@@ -4,9 +4,14 @@ import game.ScoreCategory;
 import java.util.HashMap;
 
 public class ScoreBoard {
-
+    
     private final HashMap<ScoreCategory, Integer> scores = new HashMap<>();
 
+<<<<<<< HEAD
+    private final HashMap<ScoreCategory, Integer> scores = new HashMap<>();
+
+=======
+>>>>>>> dev
     //특정 점수 카테고리에 이미 점수가 기록되었는지 확인
     public boolean isUsed(ScoreCategory category) {
         return scores.containsKey(category);

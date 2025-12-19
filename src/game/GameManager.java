@@ -18,7 +18,7 @@ public class GameManager {
             players[i] = new Player("Player " + (i + 1));
         }
         state = new GameState(players);
-        startTurn();   // ▶️ 첫 턴 시작 (주사위는 전부 ? 상태)
+        startTurn();   // ▶첫 턴 시작 (주사위는 전부 ? 상태)
     }
 
     public GameState getState() {
@@ -38,7 +38,7 @@ public class GameManager {
     }
 
     /**
-     * 🔁 턴 시작
+     * 턴 시작
      * - 주사위 값 0으로 초기화 (UI에서 '?'로 표시)
      * - hold 해제
      * - 재굴림 횟수 3회로 리셋
@@ -54,7 +54,7 @@ public class GameManager {
     }
 
     /**
-     * 🎲 Roll 버튼 눌렀을 때
+     * Roll 버튼 눌렀을 때
      */
     public void rollDice() {
         if (state.getRerollsLeft() <= 0) return;
@@ -77,7 +77,7 @@ public class GameManager {
     }
 
     /**
-     * ✅ 점수 기록
+     * 점수 기록
      */
     public int applyScore(ScoreCategory category) {
         int score = previewScore(category);
@@ -86,7 +86,7 @@ public class GameManager {
         // 게임이 아직 안 끝났으면 다음 플레이어로
         if (!isGameFinished()) {
             state.advanceToNextPlayer();
-            startTurn();  // ▶️ 다음 플레이어 턴 시작 (다시 ? + 3회)
+            startTurn();  // 다음 플레이어 턴 시작 (다시 ? + 3회)
         }
         return score;
     }
